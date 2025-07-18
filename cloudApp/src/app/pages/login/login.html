@@ -1,0 +1,26 @@
+<div class="login-container">
+  <h2>Login</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>Email</label>
+    <input formControlName="email" />
+    <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+      Valid email required.
+    </div>
+
+    <label>Password</label>
+    <input type="password" formControlName="password" />
+    <div *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+      Password is required.
+    </div>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p *ngIf="error" style="color:red">{{ error }}</p>
+  <p *ngIf="success" style="color:green">{{ success }}</p>
+
+  <hr />
+
+  <button (click)="loginWithMicrosoft()">Login with Microsoft</button>
+</div>

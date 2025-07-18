@@ -1,0 +1,25 @@
+<h2>Sign Up</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <label>Name</label>
+  <input formControlName="name" />
+  <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Name is required.</div>
+
+  <label>Email</label>
+  <input formControlName="email" />
+  <div *ngIf="form.get('email')?.errors?.['pattern']">Only @gmail.com and @epam.com allowed.</div>
+
+  <label>Password</label>
+  <input type="password" formControlName="password" />
+  <div *ngIf="form.get('password')?.errors?.['pattern']">
+    Must contain upper, lower, number & special char.
+  </div>
+
+  <label>Confirm Password</label>
+  <input type="password" formControlName="confirmPassword" />
+  <div *ngIf="form.value.password !== form.value.confirmPassword">Passwords must match.</div>
+
+  <button type="submit">Register</button>
+</form>
+
+<p *ngIf="error" style="color:red">{{ error }}</p>
+<p *ngIf="success" style="color:green">{{ success }}</p>

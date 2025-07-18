@@ -1,0 +1,19 @@
+# Ignore build and Visual Studio cache
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.db
+*.log
+*.vsp
+*.pdb
+*.cache
+
+# Ignore local settings
+appsettings.Development.json
+secrets.json
+
+# Ignore OS-specific files
+Thumbs.db
+.DS_Store
