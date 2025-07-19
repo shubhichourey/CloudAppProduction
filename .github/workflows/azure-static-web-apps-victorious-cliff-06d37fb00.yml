@@ -27,9 +27,10 @@ jobs:
           node-version: 20.19.0
           
       - name: Install Dependencies
-      - run: npm install --prefix cloudApp 
-      
-      - run: npm run build --prefix cloudApp  # Build Angular project
+        run: npm install --prefix cloudApp 
+
+      - name: Build Angular Project
+        run: npm run build --prefix cloudApp  
 
       - name: Build And Deploy
         id: builddeploy
