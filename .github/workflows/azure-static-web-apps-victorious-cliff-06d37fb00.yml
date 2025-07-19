@@ -16,7 +16,7 @@ jobs:
     environment: Production
     name: Build and Deploy Job
     env:
-      NODE_VERSION: 20.19.0
+      NODE_VERSION:  20.19.3 
     steps:
       - uses: actions/checkout@v3
         with:
@@ -24,10 +24,10 @@ jobs:
           lfs: false
           
       
-      - name: Use Node.js 20.19.0
+      - name: Use Node.js  20.19.3 
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version:  20.19.3 
        
 
       - name: Check Node Version
