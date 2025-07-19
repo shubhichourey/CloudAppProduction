@@ -19,6 +19,16 @@ jobs:
         with:
           submodules: true
           lfs: false
+          
+        # Force Node 20.19.0 (Angular 20 requirement)
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      - run: npm install
+      - run: npm run build --prefix cloudApp  # Build Angular project
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
