@@ -20,11 +20,15 @@ jobs:
           submodules: true
           lfs: false
           
-        # Force Node 20.19.0 (Angular 20 requirement)
+      
       - name: Use Node.js 20.19.0
         uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
+          cache: 'npm'
+
+      - name: Check Node Version
+        run: node -v
           
       - name: Install Dependencies
         run: npm install --prefix cloudApp 
