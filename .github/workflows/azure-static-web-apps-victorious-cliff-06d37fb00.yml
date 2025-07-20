@@ -13,18 +13,25 @@ jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
+    environment: Production
     name: Build and Deploy Job
+    env:
+      NODE_VERSION:  20.19.3 
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
           
-        # Force Node 20.19.0 (Angular 20 requirement)
-      - name: Use Node.js 20
+      
+      - name: Use Node.js  20.19.3 
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version:  20.19.3 
+       
+
+      - name: Check Node Version
+        run: node -v
           
       - name: Install Dependencies
         run: npm install --prefix cloudApp 
@@ -43,7 +50,7 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "cloudApp" # App source code path
           api_location: "" # Api source code path - optional
-          output_location: "dist/cloudApp/browser" # Built app content directory - optional
+          output_location: "dist/cloudApp/browser/browser" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
