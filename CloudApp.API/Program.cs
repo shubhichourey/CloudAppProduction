@@ -2,8 +2,18 @@ using CloudApp.Application.Interfaces;
 using CloudApp.Infrastructure.Data;
 using CloudApp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
+
+var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
+
+KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
+
+builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
 
 builder.Services.AddCors(options =>
 {
