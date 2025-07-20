@@ -4,7 +4,9 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly baseUrl = 'https://localhost:7180/api/auth';
+  //private readonly baseUrl = 'https://localhost:7180/api/auth';
+  private readonly baseUrl = 'https://cloudappservice-abhkgshqhthfhxhq.centralindia-01.azurewebsites.net/api/auth';
+
 
   constructor(private http: HttpClient) {}
 
