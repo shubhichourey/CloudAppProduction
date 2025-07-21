@@ -71,7 +71,7 @@ export class LoginComponent {
 
   loginWithMicrosoft(): void {
     this.msalService.loginRedirect({
-      scopes: ['user.read']
+      scopes: ['user.read', 'email',  'openid', 'profile', 'api://ca3023f2-9dc0-4fb7-b3ab-5d4b6fa3f3df/user_impersonation']
     } as RedirectRequest);
   }
 }
