@@ -1,4 +1,4 @@
-using CloudApp.Application.Interfaces;
+﻿using CloudApp.Application.Interfaces;
 using CloudApp.Infrastructure.Data;
 using CloudApp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,56 +8,49 @@ using Azure.Storage.Queues;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Enable Application Insights
+// Enable Application Insights
 builder.Services.AddApplicationInsightsTelemetry();
 
-//key Vault Setup
+// Connect to Azure Key Vault
 var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
-var secretClient = new SecretClient(keyVaultUrl, new DefaultAzureCredential());
+var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
 
-//Fetch secrets from Azure Key Vault
-var sendGridSecret = secretClient.GetSecret("SendGridApiKey");
-var queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
+// Get secrets
+KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
+KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
 
+// Correctly map secrets to configuration
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
 builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
+builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue"; // Your queue name
 
-//store queue name (or fetch from Key Vault if needed)
-builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
-
-// CORS Setup
+// Add services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularClient", policy =>
     {
-        policy.WithOrigins(
-            "http://localhost:4200",
-            "https://victorious-cliff-06d37fb00.2.azurestaticapps.net"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200", "https://victorious-cliff-06d37fb00.2.azurestaticapps.net")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
-// Database Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, SendGridEmailService>();
 
-// Azure Queue Client Registration
-builder.Services.AddSingleton(provider =>
+// Register Azure QueueClient using correct key name
+builder.Services.AddSingleton(x =>
 {
-    var queueConnectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
+    var connectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
     var queueName = builder.Configuration["AzureStorageQueue:QueueName"];
-    var queueClient = new QueueClient(queueConnectionString, queueName);
-    queueClient.CreateIfNotExists();
-    return queueClient;
+    var client = new QueueClient(connectionString, queueName);
+    client.CreateIfNotExists();
+    return client;
 });
 
-//  Swagger and Controllers
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
