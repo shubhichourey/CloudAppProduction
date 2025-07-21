@@ -60,7 +60,7 @@ export class SignupComponent {
     this.auth.register(requestData).subscribe({
       next: (res: any) => {
         this.success = 'Registration successful!';
-        //this.router.navigate(['/login']);
+        this.router.navigate(['/login']);
       },
       error: (err: any) => {
         console.error('Registration error (full object):', err);

@@ -42,7 +42,7 @@ export class LoginComponent {
       next: (res: any) => {
         this.success = res.message;
 
-        // ✅ Show SweetAlert when login succeeds and email sent
+
         Swal.fire({
           icon: 'success',
           title: 'Email Sent',
@@ -59,7 +59,6 @@ export class LoginComponent {
           this.error = 'Invalid email or password.';
         }
 
-        // Optionally show error with Swal
         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
@@ -70,8 +69,6 @@ export class LoginComponent {
     });
   }
 
-
-  // Microsoft Login (MSAL)
   loginWithMicrosoft(): void {
     this.msalService.loginRedirect({
       scopes: ['user.read']
