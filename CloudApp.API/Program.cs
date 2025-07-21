@@ -4,6 +4,8 @@ using CloudApp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +16,10 @@ var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
 var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
 
 KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
+KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("AzureQueueStorage"); 
 
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
+builder.Configuration["ConnectionStrings:AzureQueueStorage"] = queueConnectionSecret.Value;
 
 builder.Services.AddCors(options =>
 {
@@ -33,6 +37,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, SendGridEmailService>();
 
+// Register Azure Queue Client
+builder.Services.AddSingleton(x =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("AzureQueueStorage");
+    var queueName = builder.Configuration["AzureQueue:QueueName"];
+    var client = new QueueClient(connectionString, queueName);
+    client.CreateIfNotExists();
+    return client;
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

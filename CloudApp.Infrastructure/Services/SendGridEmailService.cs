@@ -1,10 +1,12 @@
-﻿using CloudApp.Application.Interfaces;
+﻿using Azure.Storage.Queues;
+using CloudApp.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Net.Mail;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CloudApp.Infrastructure.Services
@@ -13,11 +15,13 @@ namespace CloudApp.Infrastructure.Services
     {
         private readonly IConfiguration _config;
         private readonly ILogger<SendGridEmailService> _logger;
+        private readonly QueueClient _queueClient;
 
-        public SendGridEmailService(IConfiguration config, ILogger<SendGridEmailService> logger)
+        public SendGridEmailService(IConfiguration config, ILogger<SendGridEmailService> logger, QueueClient queueClient)
         {
             _config = config;
             _logger = logger;
+            _queueClient = queueClient;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -30,35 +34,22 @@ namespace CloudApp.Infrastructure.Services
 
             try
             {
-                var apiKey = _config["SendGrid:ApiKey"];
-                if (string.IsNullOrWhiteSpace(apiKey))
+                var emailData = new
                 {
-                    _logger.LogError("SendGrid API key is not configured.");
-                    return;
-                }
+                    To = toEmail,
+                    Subject = subject,
+                    Body = body
+                };
 
-                var client = new SendGridClient(apiKey);
+                string message = JsonSerializer.Serialize(emailData);
 
-                var from = new EmailAddress("shubhi_chourey@epam.com", "CloudApp");
-                var to = new EmailAddress(toEmail);
-                var msg = MailHelper.CreateSingleEmail(from, to, subject, body, $"<strong>{body}</strong>");
+                await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)));
 
-                var response = await client.SendEmailAsync(msg);
-
-                if ((int)response.StatusCode >= 400)
-                {
-                    var errorContent = await response.Body.ReadAsStringAsync();
-                    _logger.LogWarning("SendGrid failed for {Email}. Status: {Status}, Body: {Body}",
-                        toEmail, response.StatusCode, errorContent);
-                }
-                else
-                {
-                    _logger.LogInformation("Email sent to {Email} successfully.", toEmail);
-                }
+                _logger.LogInformation("Email message queued for {Email}", toEmail);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {Email}", toEmail);
+                _logger.LogError(ex, "Failed to queue email to {Email}", toEmail);
             }
         }
     }
