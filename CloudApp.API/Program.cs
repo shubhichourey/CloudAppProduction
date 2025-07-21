@@ -7,6 +7,8 @@ using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
+
 var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
 
 var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
