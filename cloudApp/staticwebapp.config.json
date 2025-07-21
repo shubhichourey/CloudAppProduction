@@ -5,6 +5,18 @@
   },
   "routes": [
     {
+      "route": "/login",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/register",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/dashboard",
+      "rewrite": "/index.html"
+    },
+    {
       "route": "/auth",
       "rewrite": "/index.html"
     },
