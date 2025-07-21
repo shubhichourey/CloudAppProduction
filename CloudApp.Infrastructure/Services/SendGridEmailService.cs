@@ -34,23 +34,36 @@ namespace CloudApp.Infrastructure.Services
 
             try
             {
-                var emailData = new
+                var apiKey = _config["SendGrid:ApiKey"];
+                var client = new SendGridClient(apiKey);
+                var from = new EmailAddress("shubhi_chourey@epam.com", "CloudApp");
+                var to = new EmailAddress(toEmail);
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, body, $"<strong>{body}</strong>");
+
+                var response = await client.SendEmailAsync(msg);
+
+                if ((int)response.StatusCode >= 400)
                 {
-                    To = toEmail,
-                    Subject = subject,
-                    Body = body
-                };
-
-                string message = JsonSerializer.Serialize(emailData);
-
-                await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)));
-
-                _logger.LogInformation("Email message queued for {Email}", toEmail);
+                    _logger.LogWarning("SendGrid failed for {Email}. Queuing instead. Status: {Status}", toEmail, response.StatusCode);
+                    await QueueEmailAsync(toEmail, subject, body);
+                }
+                else
+                {
+                    _logger.LogInformation("Email sent to {Email} successfully.", toEmail);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to queue email to {Email}", toEmail);
+                _logger.LogError(ex, "SendGrid error. Queuing email for {Email}", toEmail);
+                await QueueEmailAsync(toEmail, subject, body);
             }
         }
+
+        private async Task QueueEmailAsync(string to, string subject, string body)
+        {
+            var message = JsonSerializer.Serialize(new { To = to, Subject = subject, Body = body });
+            await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)));
+        }
     }
+
 }
