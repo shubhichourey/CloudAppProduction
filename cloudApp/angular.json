@@ -80,7 +80,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "staticwebapp.config.json"
             ],
             "styles": [
               "src/styles.css"
