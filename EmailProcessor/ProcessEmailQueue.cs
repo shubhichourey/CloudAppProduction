@@ -40,11 +40,11 @@ public class ProcessEmailQueue
             var msg = MailHelper.CreateSingleEmail(from, to, email.Subject, email.Body, $"<strong>{email.Body}</strong>");
             var response = await client.SendEmailAsync(msg);
 
-            _logger.LogInformation($"✅ Retried email sent to {email.To} with status {response.StatusCode}");
+            _logger.LogInformation($"Retried email sent to {email.To} with status {response.StatusCode}");
         }
         catch (Exception ex)
         {
-            _logger.LogError($"❌ Failed to send queued email: {ex.Message}");
+            _logger.LogError($"Failed to send queued email: {ex.Message}");
         }
     }
 }
