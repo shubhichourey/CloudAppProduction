@@ -1,12 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth';
 import { MsalService } from '@azure/msal-angular';
-import { InteractionType, RedirectRequest } from '@azure/msal-browser';
+import { InteractionStatus, RedirectRequest } from '@azure/msal-browser';
 import Swal from 'sweetalert2';
-
 
 @Component({
   selector: 'app-login',
@@ -15,7 +14,7 @@ import Swal from 'sweetalert2';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   form: FormGroup;
   error = '';
   success = '';
@@ -32,6 +31,24 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit() {
+    const account = this.msalService.instance.getActiveAccount();
+    if (!account) {
+      console.warn('No active account found after redirect login.');
+      return;
+    }
+
+    this.msalService.instance.acquireTokenSilent({
+      account,
+      scopes: ['user.read', 'email', 'openid', 'profile', 'api://efe7d3e6-8fe5-4b82-b937-3b7ed8e9b2e7/user_impersonation']
+    }).then(result => {
+      console.log('✅ Access Token:', result.accessToken); // JWT Token
+      console.log('✅ ID Token:', result.idToken);         // Optional
+    }).catch(err => {
+      console.error('❌ Failed to acquire token silently:', err);
+    });
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.error = 'Please enter valid email and password.';
@@ -41,7 +58,6 @@ export class LoginComponent {
     this.auth.login(this.form.value).subscribe({
       next: (res: any) => {
         this.success = res.message;
-
 
         Swal.fire({
           icon: 'success',
@@ -71,9 +87,7 @@ export class LoginComponent {
 
   loginWithMicrosoft(): void {
     this.msalService.loginRedirect({
-      scopes: ['user.read', 'email',  'openid', 'profile', 'api://efe7d3e6-8fe5-4b82-b937-3b7ed8e9b2e7/user_impersonation']
+      scopes: ['user.read', 'email', 'openid', 'profile', 'api://efe7d3e6-8fe5-4b82-b937-3b7ed8e9b2e7/user_impersonation']
     } as RedirectRequest);
   }
 }
-
-
