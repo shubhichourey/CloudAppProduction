@@ -42,10 +42,12 @@ export class LoginComponent implements OnInit {
       account,
       scopes: ['user.read', 'email', 'openid', 'profile', 'api://efe7d3e6-8fe5-4b82-b937-3b7ed8e9b2e7/user_impersonation']
     }).then(result => {
-      console.log('✅ Access Token:', result.accessToken); // JWT Token
-      console.log('✅ ID Token:', result.idToken);         // Optional
+      console.log('Access Token:', result.accessToken);
+      console.log('ID Token:', result.idToken);
+      const email = account.username || ''; // Usually email
+      console.log('Microsoft login email:', email);
     }).catch(err => {
-      console.error('❌ Failed to acquire token silently:', err);
+      console.error('Failed to acquire token silently:', err);
     });
   }
 
