@@ -1,11 +1,13 @@
 ﻿using CloudApp.Application.DTOs;
 using CloudApp.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CloudApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -15,6 +17,7 @@ public class AuthController : ControllerBase
         _userService = userService;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
@@ -31,7 +34,7 @@ public class AuthController : ControllerBase
             : BadRequest(new { message = result.Message });
     }
 
-
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
