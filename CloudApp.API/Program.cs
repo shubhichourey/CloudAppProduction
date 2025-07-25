@@ -17,11 +17,12 @@ builder.Services.AddApplicationInsightsTelemetry();
 // Connect to Azure Key Vault
 var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
 var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
-KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
+
 
 // Get secrets
 KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
 KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
+KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
 
 // Correctly map secrets to configuration
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
