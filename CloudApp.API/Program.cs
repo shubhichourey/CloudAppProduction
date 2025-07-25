@@ -7,6 +7,7 @@ using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Queues;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+using Azure.Communication.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 // Connect to Azure Key Vault
 var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
 var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
+KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
 
 // Get secrets
 KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
@@ -24,7 +26,8 @@ KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConne
 // Correctly map secrets to configuration
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
 builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
-builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue"; // Your queue name
+builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
+builder.Configuration["AzureCommunication:EmailConnectionString"] = emailServiceSecret.Value;
 
 // Add services
 builder.Services.AddCors(options =>
@@ -43,9 +46,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IEmailService, SendGridEmailService>();
+//builder.Services.AddScoped<IEmailService, SendGridEmailService>();
+builder.Services.AddScoped<IEmailService, AzureEmailService>();
 
-// Register Azure QueueClient using correct key name
+// Register Azure QueueClient
 builder.Services.AddSingleton(x =>
 {
     var connectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
@@ -55,6 +59,14 @@ builder.Services.AddSingleton(x =>
     return client;
 });
 
+//  Register Azure Communication EmailClient
+//builder.Services.AddSingleton(x =>
+//{
+//    var emailConnStr = builder.Configuration["AzureCommunication:EmailConnectionString"];
+//    return new EmailClient(emailConnStr);
+//});
+
+//jwt token for ad 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 

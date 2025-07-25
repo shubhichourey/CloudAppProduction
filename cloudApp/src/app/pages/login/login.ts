@@ -32,21 +32,22 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    const account = this.msalService.instance.getActiveAccount();
+    const account = this.msalService.instance.getActiveAccount(); //gets activated account
     if (!account) {
       console.warn('No active account found after redirect login.');
       return;
     }
 
-    this.msalService.instance.acquireTokenSilent({
+    this.msalService.instance.acquireTokenSilent({ //silently takes the token so that user doesn't have to login again
       account,
       scopes: ['user.read', 'email', 'openid', 'profile', 'api://efe7d3e6-8fe5-4b82-b937-3b7ed8e9b2e7/user_impersonation']
     }).then(result => {
       console.log('Access Token:', result.accessToken);
       console.log('ID Token:', result.idToken);
-      const email = account.username || ''; // Usually email
+      const email = account.username || '';
       console.log('Microsoft login email:', email);
     }).catch(err => {
+      //On success, logs the access and ID tokens and the user's email
       console.error('Failed to acquire token silently:', err);
     });
   }
@@ -93,3 +94,9 @@ export class LoginComponent implements OnInit {
     } as RedirectRequest);
   }
 }
+/*
+Triggers a redirect-based login with Microsoft/Azure AD,
+On successful login, the user is redirected back to your app.
+The MSAL will store the access token and ID token in cache.
+After redirection, ngOnInit handles token retrieval silently.
+ */

@@ -18,3 +18,10 @@ export const appConfig: ApplicationConfig = {
     MsalGuard,
   ],
 };
+
+
+/*
+MSAL_INSTANCE provides the configured MSAL instance to Angular.
+MsalService is used for login and token handling.
+MsalGuard can be used to protect routes (optional).
+MsalBroadcastService helps listen for login/logout events.*/
