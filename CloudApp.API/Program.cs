@@ -14,21 +14,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Enable Application Insights
 builder.Services.AddApplicationInsightsTelemetry();
 
-// Connect to Azure Key Vault
-var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
-var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
+builder.Configuration.AddAzureKeyVault(
+    new Uri("https://cloudapp-keyvault.vault.azure.net/"),
+    new DefaultAzureCredential());
+
+//// Connect to Azure Key Vault
+//var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
+//var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new DefaultAzureCredential());
 
 
-// Get secrets
-KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
-KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
-KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
+//// Get secrets
+//KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
+//KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
+//KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
 
-// Correctly map secrets to configuration
-builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
-builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
-builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
-builder.Configuration["AzureCommunication:EmailConnectionString"] = emailServiceSecret.Value;
+//// Correctly map secrets to configuration
+//builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
+//builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
+//builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
+//builder.Configuration["AzureCommunication:EmailConnectionString"] = emailServiceSecret.Value;
 
 // Add services
 builder.Services.AddCors(options =>

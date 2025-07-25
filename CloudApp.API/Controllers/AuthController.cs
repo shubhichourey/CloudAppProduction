@@ -3,49 +3,51 @@ using CloudApp.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CloudApp.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class AuthController : ControllerBase
+namespace CloudApp.API.Controllers
 {
-    private readonly IUserService _userService;
 
-    public AuthController(IUserService userService)
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class AuthController : ControllerBase
     {
-        _userService = userService;
-    }
+        private readonly IUserService _userService;
 
-    [AllowAnonymous]
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
-    {
-        if (!ModelState.IsValid)
+        public AuthController(IUserService userService)
         {
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            return BadRequest(new { errors });
+            _userService = userService;
         }
 
-        var result = await _userService.RegisterAsync(request);
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return BadRequest(new { errors });
+            }
 
-        return result.Success
-            ? Ok(new { message = result.Message })
-            : BadRequest(new { message = result.Message });
+            var result = await _userService.RegisterAsync(request);
+
+            return result.Success
+                ? Ok(new { message = result.Message })
+                : BadRequest(new { message = result.Message });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _userService.LoginAsync(request);
+
+            return result.Success
+                ? Ok(new { message = result.Message })
+                : BadRequest(new { message = result.Message });
+        }
+
     }
-
-    [AllowAnonymous]
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var result = await _userService.LoginAsync(request);
-
-        return result.Success
-            ? Ok(new { message = result.Message })
-            : BadRequest(new { message = result.Message });
-    }
-
 }

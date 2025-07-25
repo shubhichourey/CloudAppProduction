@@ -1,5 +1,8 @@
 ﻿using CloudApp.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using CloudApp.Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace CloudApp.API.Controllers
 {
