@@ -28,12 +28,15 @@ var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new Defau
 KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
 KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
 KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
+KeyVaultSecret senderAddressSecret = secretClient.GetSecret("AzureEmail--SenderAddress");
 
 // Correctly map secrets to configuration
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
 builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
 builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
 builder.Configuration["AzureEmail:ConnectionString"] = emailServiceSecret.Value;
+builder.Configuration["AzureEmail:SenderAddress"] = senderAddressSecret.Value;
+
 
 // Add services
 builder.Services.AddCors(options =>
