@@ -21,7 +21,7 @@ public class EmailSenderService
         try
         {
             var emailMessage = new EmailMessage(
-                senderAddress: "your-verified@domain.com", // Replace with your actual verified email
+                senderAddress: "DoNotReply@0843a83c-e67e-4322-a1b9-9724cb74367d.azurecomm.net", // Replace with your actual verified email
                 recipients: new EmailRecipients(new[]
                 {
                     new EmailAddress(email.To)
@@ -31,7 +31,7 @@ public class EmailSenderService
                     PlainText = email.Body,
                     Html = $"<html><body>{email.Body}</body></html>"
                 });
-
+            
             EmailSendOperation operation = await _emailClient.SendAsync(WaitUntil.Completed, emailMessage);
             _logger.LogInformation("Email sent to {To}. MessageId: {MessageId}", email.To, operation.Id);
         }
