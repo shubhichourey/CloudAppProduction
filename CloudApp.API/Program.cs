@@ -15,9 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Enable Application Insights
 builder.Services.AddApplicationInsightsTelemetry();
 
-//builder.Configuration.AddAzureKeyVault(
-//    new Uri("https://cloudapp-keyvault.vault.azure.net/"),
-//    new DefaultAzureCredential());
 
 // Connect to Azure Key Vault
 var keyVaultUrl = new Uri("https://cloudapp-keyvault.vault.azure.net/");
