@@ -26,6 +26,9 @@ KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
 KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
 KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
 KeyVaultSecret senderAddressSecret = secretClient.GetSecret("AzureEmail--SenderAddress");
+KeyVaultSecret clientIdSecret = secretClient.GetSecret("AzureAd--ClientId");
+KeyVaultSecret tenantIdSecret = secretClient.GetSecret("AzureAd--TenantId");
+KeyVaultSecret audienceSecret = secretClient.GetSecret("AzureAd--Audience");
 
 // Correctly map secrets to configuration
 builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
@@ -33,6 +36,9 @@ builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnect
 builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
 builder.Configuration["AzureEmail:ConnectionString"] = emailServiceSecret.Value;
 builder.Configuration["AzureEmail:SenderAddress"] = senderAddressSecret.Value;
+builder.Configuration["AzureAd:ClientId"] = clientIdSecret.Value.Replace("clientid:", "");
+builder.Configuration["AzureAd:TenantId"] = tenantIdSecret.Value.Replace("tenantid:", "");
+builder.Configuration["AzureAd:Audience"] = audienceSecret.Value.Replace("audience:", "");
 
 
 // Add services
