@@ -19,6 +19,11 @@
     "storage1": {
       "type": "storage",
       "connectionId": "AzureWebJobsStorage"
+    },
+    "secrets2": {
+      "type": "secrets",
+      "connectionId": "VaultUri",
+      "dynamicId": null
     }
   }
 }

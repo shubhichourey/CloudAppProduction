@@ -15,6 +15,6 @@ public class QueueEmailService
     public async Task QueueEmailAsync(EmailDto email)
     {
         var message = JsonSerializer.Serialize(email);
-        await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)));
+        await _queueClient.SendMessageAsync(message);
     }
 }

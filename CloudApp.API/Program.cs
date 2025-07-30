@@ -60,17 +60,32 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 //builder.Services.AddScoped<IEmailService, SendGridEmailService>();
-builder.Services.AddScoped<IEmailService, AzureEmailService>();
+//builder.Services.AddScoped<IEmailService, AzureEmailService>();
 
 // Register Azure QueueClient
-builder.Services.AddSingleton(x =>
+//builder.Services.AddSingleton(x =>
+//{
+//    var connectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
+//    var queueName = builder.Configuration["AzureStorageQueue:QueueName"];
+//    var client = new QueueClient(connectionString, queueName);
+//    client.CreateIfNotExists();
+//    return client;
+//});
+
+builder.Services.AddSingleton(sp =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
-    var queueName = builder.Configuration["AzureStorageQueue:QueueName"];
-    var client = new QueueClient(connectionString, queueName);
-    client.CreateIfNotExists();
-    return client;
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["ConnectionStrings:StorageQueueConnection"];
+    var queueName = config["AzureStorageQueue:QueueName"];
+    return new QueueEmailService(connectionString, queueName);
 });
+
+
+// 👇 Register the EmailService to PUSH messages to queue
+builder.Services.AddScoped<IEmailService, QueueEmailServiceWrapper>(); // ✅ Change 1
+//builder.Services.AddSingleton<QueueEmailService>(); // ✅ Change 2
+
+
 
 //  Register Azure Communication EmailClient
 builder.Services.AddSingleton(x =>

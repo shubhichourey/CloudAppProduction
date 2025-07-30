@@ -14,27 +14,29 @@
 //builder.Build().Run();
 
 
+using Azure.Communication.Email;
+using Azure.Identity;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Azure.Communication.Email;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication() 
-    .ConfigureServices((context, services) =>
-    {
-        // Register Application Insights
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
+var builder = FunctionsApplication.CreateBuilder(args);
 
-        // Register Azure EmailClient using connection string from configuration
-        var configuration = context.Configuration;
-        var emailConnectionString = configuration["ACS_CONNECTION_STRING"];
-        services.AddSingleton(new EmailClient(emailConnectionString));
-    })
-    .Build();
+builder.ConfigureFunctionsWebApplication();
 
-host.Run();
+// Application Insights
+builder.Services
+    .AddApplicationInsightsTelemetryWorkerService()
+    .ConfigureFunctionsApplicationInsights();
 
+// Adding ACS EmailClient
+builder.Services.AddSingleton(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["ACS:ConnectionString"];
+    return new EmailClient(connectionString);
+});
+
+builder.Build().Run();
 
