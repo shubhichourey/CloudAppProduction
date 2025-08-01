@@ -1,6 +1,11 @@
-﻿namespace CloudApp.Application.Interfaces;
+﻿using System;
+using CloudApp.Application;
 
-public interface IEmailService
+namespace CloudApp.Application.Interfaces
 {
-    Task SendEmailAsync(string toEmail, string subject, string bodyHtml);
+    public interface IEmailService
+    {
+        Task SendEmailAsync(string toEmail, string subject, string bodyHtml);
+    }
 }
+

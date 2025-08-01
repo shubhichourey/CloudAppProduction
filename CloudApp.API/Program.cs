@@ -22,7 +22,7 @@ var secretClient = new SecretClient(vaultUri: keyVaultUrl, credential: new Defau
 
 
 // Get secrets
-KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
+//KeyVaultSecret sendGridSecret = secretClient.GetSecret("SendGridApiKey");
 KeyVaultSecret queueConnectionSecret = secretClient.GetSecret("StorageQueueConnection");
 KeyVaultSecret emailServiceSecret = secretClient.GetSecret("EmailServiceConnectionString");
 KeyVaultSecret senderAddressSecret = secretClient.GetSecret("AzureEmail--SenderAddress");
@@ -31,7 +31,7 @@ KeyVaultSecret tenantIdSecret = secretClient.GetSecret("AzureAd--TenantId");
 KeyVaultSecret audienceSecret = secretClient.GetSecret("AzureAd--Audience");
 
 // Correctly map secrets to configuration
-builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
+//builder.Configuration["SendGrid:ApiKey"] = sendGridSecret.Value;
 builder.Configuration["ConnectionStrings:StorageQueueConnection"] = queueConnectionSecret.Value;
 builder.Configuration["AzureStorageQueue:QueueName"] = "emailqueue";
 builder.Configuration["AzureEmail:ConnectionString"] = emailServiceSecret.Value;
@@ -60,18 +60,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 //builder.Services.AddScoped<IEmailService, SendGridEmailService>();
-//builder.Services.AddScoped<IEmailService, AzureEmailService>();
+builder.Services.AddScoped<IEmailService, AzureEmailService>();
 
 // Register Azure QueueClient
-//builder.Services.AddSingleton(x =>
-//{
-//    var connectionString = builder.Configuration.GetConnectionString("StorageQueueConnection");
-//    var queueName = builder.Configuration["AzureStorageQueue:QueueName"];
-//    var client = new QueueClient(connectionString, queueName);
-//    client.CreateIfNotExists();
-//    return client;
-//});
-
 builder.Services.AddSingleton(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -81,10 +72,8 @@ builder.Services.AddSingleton(sp =>
 });
 
 
-// 👇 Register the EmailService to PUSH messages to queue
-builder.Services.AddScoped<IEmailService, QueueEmailServiceWrapper>(); // ✅ Change 1
-//builder.Services.AddSingleton<QueueEmailService>(); // ✅ Change 2
-
+// Register the EmailService to push messages to queue
+builder.Services.AddScoped<IEmailService, QueueEmailServiceWrapper>(); 
 
 
 //  Register Azure Communication EmailClient
