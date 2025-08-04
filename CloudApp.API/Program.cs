@@ -46,7 +46,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularClient", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://victorious-cliff-06d37fb00.2.azurestaticapps.net", "https://cloudAppEp.azureedge.net")
+        policy.WithOrigins("http://localhost:4200",
+            "https://victorious-cliff-06d37fb00.2.azurestaticapps.net",
+            "https://cloudappep.azureedge.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
